@@ -14,16 +14,52 @@
         android:layout_height="0dp"
         android:layout_weight="1">
 
-        <TextView
-            android:id="@+id/message"
+        <ListView
+            android:id="@+id/fileListView"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/activity_vertical_margin"
-            android:layout_marginLeft="@dimen/activity_horizontal_margin"
-            android:layout_marginRight="@dimen/activity_horizontal_margin"
-            android:layout_marginTop="@dimen/activity_vertical_margin"
-            android:text="@string/title_home" />
+            android:layout_height="match_parent" />
 
+        <ProgressBar
+            android:id="@+id/segmentProgress"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="300dip"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/recordButton"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="61dp"
+            android:max="500"
+            android:padding="6dp" />
+
+        <ProgressBar
+            android:id="@+id/uploadProgress"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="300dip"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@+id/segmentProgress"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="91dp"
+            android:layout_marginLeft="16dp"
+            android:max="500"
+            android:padding="6dp" />
+
+        <TextView
+            android:id="@+id/uploadTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/uploadProgress"
+            android:layout_alignRight="@+id/uploadButton"
+            android:text="@string/upload_progress"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <TextView
+            android:id="@+id/segmentTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/segmentProgress"
+            android:layout_alignLeft="@+id/recordButton"
+            android:layout_marginBottom="30dp"
+            android:text="@string/segment_progress"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
     </FrameLayout>
 
     <android.support.design.widget.BottomNavigationView

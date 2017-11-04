@@ -17,4 +17,6 @@
 
         ]]>
     </string>
+    <string name="segment_progress"></string>
+    <string name="upload_progress"></string>
 </resources>
