@@ -35,6 +35,7 @@ public class UploadFile extends AsyncTask<String, Void, String> {
 
         ArrayList<String> segmentList = GetFiles(params[0]);
         Iterator iter = segmentList.iterator();
+        int i = 0;
         while(iter.hasNext()) {
 
             try {
@@ -52,7 +53,10 @@ public class UploadFile extends AsyncTask<String, Void, String> {
                 String videoTitle = params[1];
                 String deviceId = params[2];
                 System.out.println("Device id is " + deviceId);
-                String streamlets = "5";
+                String totalStreamlets = Integer.toString(segmentList.size());
+                String streamletNo = Integer.toString(i);
+                i++;
+
 
                 if (sourceFile.isFile()) {
 
@@ -127,9 +131,16 @@ public class UploadFile extends AsyncTask<String, Void, String> {
                         dos.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
 
                         dos.writeBytes(twoHyphens + boundary + lineEnd);
-                        dos.writeBytes("Content-Disposition: form-data; name=\"streamlets\"" + lineEnd);
+                        dos.writeBytes("Content-Disposition: form-data; name=\"streamletNo\"" + lineEnd);
                         dos.writeBytes(lineEnd);
-                        dos.writeBytes(streamlets);//your parameter value
+                        dos.writeBytes(streamletNo);//your parameter value
+                        dos.writeBytes(lineEnd); //to add multiple parameters write Content-Disposition: form-data; name=\"your parameter name\"" + crlf again and keep repeating till here :)
+                        dos.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
+
+                        dos.writeBytes(twoHyphens + boundary + lineEnd);
+                        dos.writeBytes("Content-Disposition: form-data; name=\"totalStreamlets\"" + lineEnd);
+                        dos.writeBytes(lineEnd);
+                        dos.writeBytes(totalStreamlets);//your parameter value
                         dos.writeBytes(lineEnd); //to add multiple parameters write Content-Disposition: form-data; name=\"your parameter name\"" + crlf again and keep repeating till here :)
                         dos.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
                         //dos.writeBytes(twoHyphens + boundary + twoHyphens);
