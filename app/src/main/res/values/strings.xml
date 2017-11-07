@@ -19,4 +19,7 @@
     </string>
     <string name="segment_progress"></string>
     <string name="upload_progress"></string>
+    <string name="video_upload">Upload Video</string>
+    <string name="video_play">Play Video</string>
+    <string name="video_delete">Delete Video</string>
 </resources>

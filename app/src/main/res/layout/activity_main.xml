@@ -14,52 +14,82 @@
         android:layout_height="0dp"
         android:layout_weight="1">
 
-        <ListView
-            android:id="@+id/fileListView"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
-        <ProgressBar
-            android:id="@+id/segmentProgress"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="300dip"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/recordButton"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="61dp"
-            android:max="500"
-            android:padding="6dp" />
+            <TextView
+                android:id="@+id/mainTitleText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:layout_marginTop="10dp"
+                android:fontFamily="sans-serif"
+                android:text="List of Videos"
+                android:textAlignment="center"
+                android:textColor="@color/colorPrimaryDark"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:typeface="sans" />
 
-        <ProgressBar
-            android:id="@+id/uploadProgress"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="300dip"
-            android:layout_height="wrap_content"
-            android:layout_alignLeft="@+id/segmentProgress"
-            android:layout_alignParentBottom="true"
-            android:layout_marginBottom="91dp"
-            android:layout_marginLeft="16dp"
-            android:max="500"
-            android:padding="6dp" />
+            <ListView
+                android:id="@+id/fileListView"
+                style="@style/Widget.AppCompat.ListView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clickable="false">
 
-        <TextView
-            android:id="@+id/uploadTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_above="@+id/uploadProgress"
-            android:layout_alignRight="@+id/uploadButton"
-            android:text="@string/upload_progress"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
 
-        <TextView
-            android:id="@+id/segmentTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignBottom="@+id/segmentProgress"
-            android:layout_alignLeft="@+id/recordButton"
-            android:layout_marginBottom="30dp"
-            android:text="@string/segment_progress"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
+            </ListView>
+
+            <ProgressBar
+                android:id="@+id/segmentProgress"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/recordButton"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="61dp"
+                android:max="500"
+                android:padding="6dp" />
+
+            <ProgressBar
+                android:id="@+id/uploadProgress"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="300dip"
+                android:layout_height="wrap_content"
+                android:layout_alignLeft="@+id/segmentProgress"
+                android:layout_alignParentBottom="true"
+                android:layout_marginBottom="91dp"
+                android:layout_marginLeft="16dp"
+                android:max="500"
+                android:padding="6dp" />
+
+            <TextView
+                android:id="@+id/uploadTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_above="@+id/uploadProgress"
+                android:layout_alignRight="@+id/uploadButton"
+                android:text="@string/upload_progress"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+
+            <TextView
+                android:id="@+id/segmentTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@+id/segmentProgress"
+                android:layout_alignLeft="@+id/recordButton"
+                android:layout_marginBottom="30dp"
+                android:text="@string/segment_progress"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+
+
+        </LinearLayout>
+
+
+
     </FrameLayout>
 
     <android.support.design.widget.BottomNavigationView
@@ -68,6 +98,8 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:background="?android:attr/windowBackground"
-        app:menu="@menu/navigation" />
+        app:menu="@menu/navigation" >
+
+    </android.support.design.widget.BottomNavigationView>
 
 </LinearLayout>
