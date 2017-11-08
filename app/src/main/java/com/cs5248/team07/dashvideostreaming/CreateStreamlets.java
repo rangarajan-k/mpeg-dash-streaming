@@ -45,14 +45,6 @@ public class CreateStreamlets extends AsyncTask<String, Double, Integer> {
         //segmentProgress.setMax(100);
     }
 
-    /**
-     * Splits a video into multiple clips of specified duration of seconds
-     *
-     * @param path Path of the video to be segmented
-     * @param destinationPath Path where the final segments have to be stored
-     * @param splitDuration Duration of each clip into which we have to cut
-     * @return Number of segments created in splitting of video
-     */
     public int split(String path, String destinationPath, double splitDuration) {
         double startTime = 0.00;
         segmentNumber = 1;
@@ -81,17 +73,7 @@ public class CreateStreamlets extends AsyncTask<String, Double, Integer> {
         return segmentNumber - 1;
     }
 
-    /**
-     * Convenience method which is called by split(double splitDuration) to perform
-     * the splitting of video.
-     *
-     * @param startTime Start time of the new segment video
-     * @param endTime End time of the new segment video
-     * @param segmentNumber Segment number of the video. Used in naming for the segment
-     * @return true if segment is created else false is returned
-     * @throws IOException
-     * @throws FileNotFoundException
-     */
+
     private boolean performSplit(double startTime, double endTime, int segmentNumber) throws IOException, FileNotFoundException {
         Movie movie = MovieCreator.build(videoPath);
         Log.i("DASH", "Movie Time:" +Long.toString(movie.getTimescale()));
@@ -172,15 +154,7 @@ public class CreateStreamlets extends AsyncTask<String, Double, Integer> {
         return true;
     }
 
-    /**
-     * Convenience method which gives the nearest next or previous time
-     * where the segmentation of the video can be performed.
-     *
-     * @param track Track which needs to be scanned to find the next sync sample
-     * @param cutHere Time at which the segmentation needs to be done
-     * @param next boolean false if want the cutTime less than cutHere else true
-     * @return nearest cutTime where the segmentation could be done
-     */
+
     private double correctTimeToSyncSample(Track track, double cutHere, boolean next) {
         double[] timeOfSyncSamples = new double[track.getSyncSamples().length];
         long currentSample = 0;

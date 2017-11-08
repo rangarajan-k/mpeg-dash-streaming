@@ -30,7 +30,6 @@ import android.content.Intent;
 import android.widget.ListView;
 import android.app.Activity;
 import android.widget.Toast;
-
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -39,17 +38,13 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
-
 import android.widget.ProgressBar;
-
 import org.w3c.dom.Text;
-
 import static android.provider.AlarmClock.EXTRA_MESSAGE;
 
 
 public class MainActivity extends AppCompatActivity{
 
-    private TextView mTextMessage;
     private TextView videoPopUpTitle;
     private TextView videoPopupPlay;
     private TextView videoPopupUpload;
@@ -78,9 +73,6 @@ public class MainActivity extends AppCompatActivity{
                     return true;
                 case R.id.navigation_camera:
                     openCamera();
-                    return true;
-                case R.id.navigation_notifications:
-                    //uploadSingleFile(getAppStoragePath(MainActivity.this));
                     return true;
             }
             return false;
@@ -169,7 +161,7 @@ public class MainActivity extends AppCompatActivity{
                 //Call the function that splits into segments and uploads
                 String dir = getAppStoragePath(MainActivity.this);
                 segmentVideo(dir,videoTitle);
-                //uploadSingleFile(dir,videoTitle);
+                uploadSingleFile(dir,videoTitle);
                 videoPopupWindow.dismiss();
             }
         });
