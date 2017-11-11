@@ -6,15 +6,11 @@
     <string name="record">Record</string>
     <string name="stop">Stop</string>
     <string name="description_info">Info</string>
-    <string name="permission_request">This sample needs permission for camera and audio recording.</string>
+    <string name="permission_request">This app needs permission for camera and audio recording.</string>
     <string name="camera_error">This device doesn\'t support Camera2 API.</string>
     <string name="intro_message">
         <![CDATA[
-
-
-            This sample demonstrates how to record video using Camera2 API.
-
-
+            This app demonstrates how to record video using Camera2 API.
         ]]>
     </string>
     <string name="segment_progress"></string>

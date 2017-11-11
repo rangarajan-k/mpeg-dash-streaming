@@ -79,20 +79,10 @@ public class CreateStreamlets extends AsyncTask<String, Double, Integer> {
         Log.i("DASH", "Movie Time:" +Long.toString(movie.getTimescale()));
         List<Track> tracks = movie.getTracks();
         movie.setTracks(new LinkedList<Track>());
-        // remove all tracks we will create new tracks from the old
-
         boolean timeCorrected = false;
-
-        // Here we try to find a track that has sync samples. Since we can only start decoding
-        // at such a sample we SHOULD make sure that the start of the new fragment is exactly
-        // such a frame
         for (Track track : tracks) {
             if (track.getSyncSamples() != null && track.getSyncSamples().length > 0) {
                 if (timeCorrected) {
-                    // This exception here could be a false positive in case we have multiple tracks
-                    // with sync samples at exactly the same positions. E.g. a single movie containing
-                    // multiple qualities of the same video (Microsoft Smooth Streaming file)
-
                     throw new RuntimeException("The startTime has already been corrected by another track with SyncSample. Not Supported.");
                 }
                 startTime = correctTimeToSyncSample(track, startTime, true);
@@ -142,15 +132,13 @@ public class CreateStreamlets extends AsyncTask<String, Double, Integer> {
         long start1 = System.currentTimeMillis();
         Container out = new DefaultMp4Builder().build(movie);
         long start2 = System.currentTimeMillis();
-        FileOutputStream fos = new FileOutputStream(outputPath + String.format("%s---%d.mp4", filename  , segmentNumber));
+        FileOutputStream fos = new FileOutputStream(outputPath + String.format("%s_%d.mp4", filename  , segmentNumber));
         FileChannel fc = fos.getChannel();
         out.writeContainer(fc);
 
         fc.close();
         fos.close();
         long start3 = System.currentTimeMillis();
-        Log.i("DASH", "Building IsoFile took : " + (start2 - start1) + "ms");
-        Log.i("DASH", "Writing IsoFile took  : " + (start3 - start2) + "ms");
         return true;
     }
 

@@ -17,6 +17,7 @@
 package com.cs5248.team07.dashvideostreaming;
 
 import android.app.Activity;
+import android.graphics.Camera;
 import android.os.Bundle;
 
 public class CameraActivity extends Activity {
@@ -27,7 +28,7 @@ public class CameraActivity extends Activity {
         setContentView(R.layout.activity_camera);
         if (null == savedInstanceState) {
             getFragmentManager().beginTransaction()
-                    .replace(R.id.container, Camera2VideoFragment.newInstance())
+                    .replace(R.id.container, CameraRecordActivity.newInstance())
                     .commit();
         }
     }

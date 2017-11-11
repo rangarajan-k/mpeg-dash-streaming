@@ -1,6 +1,7 @@
 package com.cs5248.team07.dashvideostreaming;
 
 import android.os.AsyncTask;
+import android.widget.Toast;
 
 import java.io.DataOutputStream;
 import java.io.File;
@@ -81,12 +82,6 @@ public class UploadFile extends AsyncTask<String, Void, String> {
                         conn.setRequestProperty("Content-Type",
                                 "multipart/form-data;boundary=" + boundary);
                         conn.setRequestProperty("fileToUpload", sourceFileUri);
-                            /*conn.setRequestProperty("deviceId", deviceId);
-                            conn.setRequestProperty("videoTitle", videoTitle);
-                            conn.setRequestProperty("streamlets", streamlets);
-                            */
-
-
                         dos = new DataOutputStream(conn.getOutputStream());
 
                         dos.writeBytes(twoHyphens + boundary + lineEnd);
@@ -119,21 +114,21 @@ public class UploadFile extends AsyncTask<String, Void, String> {
                         dos.writeBytes(twoHyphens + boundary + lineEnd);
                         dos.writeBytes("Content-Disposition: form-data; name=\"videoTitle\"" + lineEnd);
                         dos.writeBytes(lineEnd);
-                        dos.writeBytes(videoTitle);//your parameter value
-                        dos.writeBytes(lineEnd); //to add multiple parameters write Content-Disposition: form-data; name=\"your parameter name\"" + crlf again and keep repeating till here :)
+                        dos.writeBytes(videoTitle);
+                        dos.writeBytes(lineEnd);
                         dos.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
 
                         dos.writeBytes(twoHyphens + boundary + lineEnd);
                         dos.writeBytes("Content-Disposition: form-data; name=\"deviceId\"" + lineEnd);
                         dos.writeBytes(lineEnd);
-                        dos.writeBytes(deviceId);//your parameter value
-                        dos.writeBytes(lineEnd); //to add multiple parameters write Content-Disposition: form-data; name=\"your parameter name\"" + crlf again and keep repeating till here :)
+                        dos.writeBytes(deviceId);
+                        dos.writeBytes(lineEnd);
                         dos.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
 
                         dos.writeBytes(twoHyphens + boundary + lineEnd);
                         dos.writeBytes("Content-Disposition: form-data; name=\"streamletNo\"" + lineEnd);
                         dos.writeBytes(lineEnd);
-                        dos.writeBytes(streamletNo);//your parameter value
+                        dos.writeBytes(streamletNo);
                         dos.writeBytes(lineEnd); //to add multiple parameters write Content-Disposition: form-data; name=\"your parameter name\"" + crlf again and keep repeating till here :)
                         dos.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
 
@@ -141,24 +136,22 @@ public class UploadFile extends AsyncTask<String, Void, String> {
                         dos.writeBytes("Content-Disposition: form-data; name=\"totalStreamlets\"" + lineEnd);
                         dos.writeBytes(lineEnd);
                         dos.writeBytes(totalStreamlets);//your parameter value
-                        dos.writeBytes(lineEnd); //to add multiple parameters write Content-Disposition: form-data; name=\"your parameter name\"" + crlf again and keep repeating till here :)
+                        dos.writeBytes(lineEnd);
                         dos.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
-                        //dos.writeBytes(twoHyphens + boundary + twoHyphens);
+
                         // Responses from the server (code and message)
                         int serverResponseCode = conn.getResponseCode();
                         String serverResponseMessage = conn
                                 .getResponseMessage();
 
-                        System.out.println("Sent all params to server");
-
                         if (serverResponseCode == 200) {
-                            System.out.println("Sent all params to server");
-                            // messageText.setText(msg);
-                            //Toast.makeText(MainActivity.this, "File Upload Complete.",
+                            System.out.println("Sent all files to server");
+                            //Toast.makeText(getActivity(), "File Upload Complete.",
                             //Toast.LENGTH_SHORT).show();
-
-                            // recursiveDelete(mDirectory1);
-
+                        }
+                        else{
+                            //Toast.makeText(MainActivity.this, "File Upload Complete.",
+                             //       Toast.LENGTH_LONG).show();
                         }
 
                         // close the streams //
