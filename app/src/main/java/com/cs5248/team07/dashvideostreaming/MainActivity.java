@@ -1,17 +1,12 @@
 package com.cs5248.team07.dashvideostreaming;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.media.MediaPlayer;
 import android.net.Uri;
-import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.content.FileProvider;
-import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Gravity;
@@ -22,7 +17,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
-import android.widget.PopupMenu;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -30,17 +24,10 @@ import android.content.Intent;
 import android.widget.ListView;
 import android.app.Activity;
 import android.widget.Toast;
-import java.io.DataOutputStream;
+
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
-import android.widget.ProgressBar;
-import org.w3c.dom.Text;
-import static android.provider.AlarmClock.EXTRA_MESSAGE;
 
 
 public class MainActivity extends AppCompatActivity{
@@ -50,16 +37,13 @@ public class MainActivity extends AppCompatActivity{
     private TextView videoPopupUpload;
     private TextView videoPopupDelete;
     private String outputPath;
-    private Intent videoIntent;
-    private ProgressBar segmentProgressBar;
-    private ProgressBar uploadProgressBar;
-    private TextView segmentProgressView;
-    private TextView uploadProgressView;
     private PopupWindow videoPopupWindow;
     private FrameLayout mainLayout;
     private Context mContext;
     private Activity mActivity;
     private TextView mainTitleText;
+    private SwipeRefreshLayout swipeContainer;
+
     ListView fileList;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
@@ -89,6 +73,17 @@ public class MainActivity extends AppCompatActivity{
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         ListAllVideos();
+
+        swipeContainer = (SwipeRefreshLayout) findViewById(R.id.swiperefresh);
+        // Setup refresh listener which triggers new data loading
+        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                ListAllVideos();
+                swipeContainer.setRefreshing(false);
+            }
+        });
+
 
     }
     public void ListAllVideos(){
@@ -157,11 +152,11 @@ public class MainActivity extends AppCompatActivity{
             @Override
             public void onClick(View v) {
                 String videoTitle = videoPopUpTitle.getText().toString();
-                Toast.makeText(MainActivity.this,"You Clicked : " + videoTitle,Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this,"Splitting and uploading the video : " + videoTitle,Toast.LENGTH_LONG).show();
                 //Call the function that splits into segments and uploads
                 String dir = getAppStoragePath(MainActivity.this);
                 segmentVideo(dir,videoTitle);
-                uploadSingleFile(dir,videoTitle);
+                //uploadSingleFile(dir,videoTitle);
                 videoPopupWindow.dismiss();
             }
         });
@@ -171,7 +166,7 @@ public class MainActivity extends AppCompatActivity{
             @Override
             public void onClick(View v) {
                 String videoTitle = videoPopUpTitle.getText().toString();
-                Toast.makeText(MainActivity.this,"You Clicked : " + videoTitle,Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this,"Deleting the video : " + videoTitle,Toast.LENGTH_LONG).show();
                 //Call the function that splits into segments and uploads
                 String dir = getAppStoragePath(MainActivity.this);
                 deleteVideo(dir,videoTitle);
@@ -185,7 +180,7 @@ public class MainActivity extends AppCompatActivity{
             @Override
             public void onClick(View v) {
                 String videoTitle = videoPopUpTitle.getText().toString();
-                Toast.makeText(MainActivity.this,"You Clicked : " + videoTitle,Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this,"Playing the video : " + videoTitle,Toast.LENGTH_LONG).show();
                 //Call the function that splits into segments and uploads
                 String dir = getAppStoragePath(MainActivity.this);
                 playVideo(dir,videoTitle);
@@ -246,6 +241,16 @@ public class MainActivity extends AppCompatActivity{
         String filepath = directorypath+"/"+fileName;
         File f = new File(filepath);
         f.delete();
+        File dir = new File(directorypath + "/streamlets/" + fileName);
+        if (dir.isDirectory())
+        {
+            String[] children = dir.list();
+            for (int i = 0; i < children.length; i++)
+            {
+                new File(dir, children[i]).delete();
+            }
+        }
+        dir.delete();
         ListAllVideos();
     }
 
@@ -274,7 +279,7 @@ public class MainActivity extends AppCompatActivity{
         outputPath = getSegmentFolder(f.getName());
         Log.i("DASH", "Path where segments have to be saved is " + outputPath);
 
-        CreateStreamlets obj = new CreateStreamlets(segmentProgressBar, segmentProgressView);
+        CreateVideoSegments obj = new CreateVideoSegments();
         try {
             Integer result = obj.execute(filepath, outputPath, "3.0").get();
         } catch (InterruptedException e) {

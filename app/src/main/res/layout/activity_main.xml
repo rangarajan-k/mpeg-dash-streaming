@@ -33,57 +33,21 @@
                 android:textStyle="bold"
                 android:typeface="sans" />
 
+            <android.support.v4.widget.SwipeRefreshLayout
+                xmlns:android="http://schemas.android.com/apk/res/android"
+                android:id="@+id/swiperefresh"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
             <ListView
                 android:id="@+id/fileListView"
                 style="@style/Widget.AppCompat.ListView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:clickable="false">
-
-
             </ListView>
+            </android.support.v4.widget.SwipeRefreshLayout>
 
-            <ProgressBar
-                android:id="@+id/segmentProgress"
-                style="?android:attr/progressBarStyleHorizontal"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/recordButton"
-                android:layout_centerHorizontal="true"
-                android:layout_marginTop="61dp"
-                android:max="500"
-                android:padding="6dp" />
-
-            <ProgressBar
-                android:id="@+id/uploadProgress"
-                style="?android:attr/progressBarStyleHorizontal"
-                android:layout_width="300dip"
-                android:layout_height="wrap_content"
-                android:layout_alignLeft="@+id/segmentProgress"
-                android:layout_alignParentBottom="true"
-                android:layout_marginBottom="91dp"
-                android:layout_marginLeft="16dp"
-                android:max="500"
-                android:padding="6dp" />
-
-            <TextView
-                android:id="@+id/uploadTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_above="@+id/uploadProgress"
-                android:layout_alignRight="@+id/uploadButton"
-                android:text="@string/upload_progress"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
-
-            <TextView
-                android:id="@+id/segmentTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignBottom="@+id/segmentProgress"
-                android:layout_alignLeft="@+id/recordButton"
-                android:layout_marginBottom="30dp"
-                android:text="@string/segment_progress"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
 
 
         </LinearLayout>

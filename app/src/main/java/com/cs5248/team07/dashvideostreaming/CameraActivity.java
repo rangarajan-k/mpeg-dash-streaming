@@ -19,6 +19,9 @@ package com.cs5248.team07.dashvideostreaming;
 import android.app.Activity;
 import android.graphics.Camera;
 import android.os.Bundle;
+import android.util.Log;
+
+import static android.content.ContentValues.TAG;
 
 public class CameraActivity extends Activity {
 
@@ -31,6 +34,12 @@ public class CameraActivity extends Activity {
                     .replace(R.id.container, CameraRecordActivity.newInstance())
                     .commit();
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        Log.d(TAG, "Back button pressed. Stopping recording and existing!!");
+        finish();
     }
 
 }

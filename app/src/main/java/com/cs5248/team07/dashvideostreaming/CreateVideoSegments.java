@@ -4,14 +4,12 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-
 import com.coremedia.iso.boxes.Container;
 import com.googlecode.mp4parser.authoring.Movie;
 import com.googlecode.mp4parser.authoring.Track;
 import com.googlecode.mp4parser.authoring.builder.DefaultMp4Builder;
 import com.googlecode.mp4parser.authoring.container.mp4.MovieCreator;
 import com.googlecode.mp4parser.authoring.tracks.CroppedTrack;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -22,7 +20,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 
-public class CreateStreamlets extends AsyncTask<String, Double, Integer> {
+public class CreateVideoSegments extends AsyncTask<String, Double, Integer> {
 
     private String videoPath;
     private String outputPath;
@@ -31,18 +29,22 @@ public class CreateStreamlets extends AsyncTask<String, Double, Integer> {
     private double videoTime;
     private double percentage;
     private int segmentNumber;
-
     private  ProgressBar segmentProgress;
     private  TextView textview;
 
-    public CreateStreamlets(ProgressBar segmentProgress, TextView textView) {
-        this.segmentProgress = segmentProgress;
-        this.textview = textView;
-    }
 
     @Override
-    protected void onPreExecute() {
-        //segmentProgress.setMax(100);
+    protected Integer doInBackground(String... params) {
+
+        Log.i("DASH" , "Inside split background function ");
+
+        if (params.length != 3)
+            throw new IllegalArgumentException("Not enough params");
+
+        String path = params[0];
+        String destPath = params[1];
+        double splitDuration = Double.parseDouble(params[2]);
+        return Integer.valueOf(this.split(path, destPath, splitDuration));
     }
 
     public int split(String path, String destinationPath, double splitDuration) {
@@ -54,7 +56,27 @@ public class CreateStreamlets extends AsyncTask<String, Double, Integer> {
         videoPath = path;
         outputPath = destinationPath;
         filename = new File(videoPath).getName().replace(".mp4", "");
+        /*
+        Movie movie = null;
+        try {
+            movie = MovieCreator.build(videoPath);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
+        System.out.println("Total movie time is = "+movie.getTimescale());
+        List<Track> tracks = movie.getTracks();
+        Track track = tracks.get(0);
+        videoTime = correctSyncSamples(track, 50000, true);
+
+        int fullvideotime = (int) videoTime;
+        int totalsegments = fullvideotime/3;
+        if(fullvideotime%3 != 0){
+            totalsegments++;
+        }
+        System.out.println ("Total segments needed is " + totalsegments);
+        Log.i("DASH" , "Total segments needed is  "+ totalsegments);
+        */
         long start1 = System.currentTimeMillis();
         try {
             while (performSplit(startTime, startTime + splitDuration, segmentNumber)) {
@@ -76,28 +98,28 @@ public class CreateStreamlets extends AsyncTask<String, Double, Integer> {
 
     private boolean performSplit(double startTime, double endTime, int segmentNumber) throws IOException, FileNotFoundException {
         Movie movie = MovieCreator.build(videoPath);
-        Log.i("DASH", "Movie Time:" +Long.toString(movie.getTimescale()));
+        System.out.println("Total movie time is = "+movie.getTimescale());
         List<Track> tracks = movie.getTracks();
         movie.setTracks(new LinkedList<Track>());
         boolean timeCorrected = false;
         for (Track track : tracks) {
             if (track.getSyncSamples() != null && track.getSyncSamples().length > 0) {
                 if (timeCorrected) {
-                    throw new RuntimeException("The startTime has already been corrected by another track with SyncSample. Not Supported.");
+                    throw new RuntimeException("Some exception");
                 }
-                startTime = correctTimeToSyncSample(track, startTime, true);
-                endTime = correctTimeToSyncSample(track, endTime, true);
+                startTime = correctSyncSamples(track, startTime, true);
+                endTime = correctSyncSamples(track, endTime, true);
                 timeCorrected = true;
                 if(!set) {
-                    videoTime = correctTimeToSyncSample(track, 10000, true);
+                    videoTime = correctSyncSamples(track, 50000, true);
                     set = true;
-                    Log.i("DASH", "Video total time =" + videoTime);
+                   System.out.println("Video total time =" + videoTime);
                 }
             }
         }
 
-        percentage = (startTime * 100) / videoTime;
-        publishProgress(percentage);
+        //percentage = (startTime * 100) / videoTime;
+        //publishProgress(percentage);
 
         if (startTime == endTime)
             return false;
@@ -108,17 +130,14 @@ public class CreateStreamlets extends AsyncTask<String, Double, Integer> {
             double lastTime = 0;
             long startSample1 = 0;
             long endSample1 = -1;
-
             for (int i = 0; i < track.getSampleDurations().length; i++) {
                 long delta = track.getSampleDurations()[i];
 
 
                 if (currentTime > lastTime && currentTime <= startTime) {
-                    // current sample is still before the new starttime
                     startSample1 = currentSample;
                 }
                 if (currentTime > lastTime && currentTime <= endTime) {
-                    // current sample is after the new start time and still before the new endtime
                     endSample1 = currentSample;
                 }
 
@@ -126,7 +145,7 @@ public class CreateStreamlets extends AsyncTask<String, Double, Integer> {
                 currentTime += (double) delta / (double) track.getTrackMetaData().getTimescale();
                 currentSample++;
             }
-            Log.i("DASH", "Start time = " + startTime + ", End time = " + endTime);
+            Log.i("TAG", "Start time is = " + startTime + ", End time is = " + endTime);
             movie.addTrack(new CroppedTrack(track, startSample1, endSample1));
         }
         long start1 = System.currentTimeMillis();
@@ -143,10 +162,11 @@ public class CreateStreamlets extends AsyncTask<String, Double, Integer> {
     }
 
 
-    private double correctTimeToSyncSample(Track track, double cutHere, boolean next) {
+    private double correctSyncSamples(Track track, double endLimit, boolean next) {
         double[] timeOfSyncSamples = new double[track.getSyncSamples().length];
         long currentSample = 0;
         double currentTime = 0;
+
         for (int i = 0; i < track.getSampleDurations().length; i++) {
             long delta = track.getSampleDurations()[i];
 
@@ -160,7 +180,7 @@ public class CreateStreamlets extends AsyncTask<String, Double, Integer> {
         }
         double previous = 0;
         for (double timeOfSyncSample : timeOfSyncSamples) {
-            if (timeOfSyncSample >= cutHere) {
+            if (timeOfSyncSample >= endLimit) {
                 if (next) {
                     return timeOfSyncSample;
                 } else {
@@ -171,28 +191,5 @@ public class CreateStreamlets extends AsyncTask<String, Double, Integer> {
         }
         return timeOfSyncSamples[timeOfSyncSamples.length - 1];
     }
-
-    @Override
-    protected void onProgressUpdate(Double... values) {
-        //segmentProgress.setProgress(values[0].intValue());
-        //Updates the number of segments done below Progress Bar on UI
-        //textview.setText(segmentNumber - 1 + " segments created");
-    }
-
-    @Override
-    protected Integer doInBackground(String... params) {
-
-        Log.i("DASH" , "Inside doInBackground");
-
-        if (params.length != 3)
-            throw new IllegalArgumentException("Three parameters needed - src" +
-                    " video path, dest path, split-duration");
-
-        String path = params[0];
-        String destPath = params[1];
-        double splitDuration = Double.parseDouble(params[2]);
-        return Integer.valueOf(this.split(path, destPath, splitDuration));
-    }
-
 
 }

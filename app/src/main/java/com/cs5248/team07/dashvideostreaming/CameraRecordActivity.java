@@ -655,5 +655,4 @@ public class CameraRecordActivity extends Fragment
         }
 
     }
-
 }

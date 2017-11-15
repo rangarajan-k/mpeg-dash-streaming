@@ -1,6 +1,7 @@
 package com.cs5248.team07.dashvideostreaming;
 
 import android.os.AsyncTask;
+import android.util.Log;
 import android.widget.Toast;
 
 import java.io.DataOutputStream;
@@ -36,11 +37,12 @@ public class UploadFile extends AsyncTask<String, Void, String> {
 
         ArrayList<String> segmentList = GetFiles(params[0]);
         Iterator iter = segmentList.iterator();
-        int i = 0;
-        while(iter.hasNext()) {
+        String totalStreamlets = Integer.toString(segmentList.size());
+        Integer streamletsUploaded = 0;
+        for (int i = streamletsUploaded; i < segmentList.size(); i++) {
 
             try {
-                String sourceFileUri = iter.next().toString();
+                String sourceFileUri = segmentList.get(i).toString();
                 System.out.println("Trying to upload the file " + sourceFileUri);
                 HttpURLConnection conn = null;
                 DataOutputStream dos = null;
@@ -54,7 +56,6 @@ public class UploadFile extends AsyncTask<String, Void, String> {
                 String videoTitle = params[1];
                 String deviceId = params[2];
                 System.out.println("Device id is " + deviceId);
-                String totalStreamlets = Integer.toString(segmentList.size());
                 String streamletNo = Integer.toString(i);
                 i++;
 
@@ -145,25 +146,24 @@ public class UploadFile extends AsyncTask<String, Void, String> {
                                 .getResponseMessage();
 
                         if (serverResponseCode == 200) {
-                            System.out.println("Sent all files to server");
-                            //Toast.makeText(getActivity(), "File Upload Complete.",
-                            //Toast.LENGTH_SHORT).show();
+                            System.out.println("Sent"+ sourceFile.getName() + "to server");
                         }
                         else{
-                            //Toast.makeText(MainActivity.this, "File Upload Complete.",
-                             //       Toast.LENGTH_LONG).show();
+                            throw new Exception("Could not upload file " + sourceFile.getName());
                         }
 
                         // close the streams //
                         fileInputStream.close();
                         dos.flush();
                         dos.close();
+                        streamletsUploaded++;
 
                     } catch (Exception e) {
-
+                        Log.i("DASH","Could not upload file " + sourceFile.getName() );
+                        Thread.sleep(3000);
                         // dialog.dismiss();
                         e.printStackTrace();
-
+                        continue;
                     }
 
                 }
@@ -176,18 +176,5 @@ public class UploadFile extends AsyncTask<String, Void, String> {
             }
         }
         return "Executed";
-    }
-
-    @Override
-    protected void onPostExecute(String result) {
-
-    }
-
-    @Override
-    protected void onPreExecute() {
-    }
-
-    @Override
-    protected void onProgressUpdate(Void... values) {
     }
 }
