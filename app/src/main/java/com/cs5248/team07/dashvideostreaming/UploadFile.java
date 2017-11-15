@@ -2,6 +2,7 @@ package com.cs5248.team07.dashvideostreaming;
 
 import android.os.AsyncTask;
 import android.util.Log;
+import android.widget.PopupWindow;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -24,13 +25,16 @@ public class UploadFile extends AsyncTask<Void, Integer, Void> {
     private String videoTitle;
     private String deviceId;
     private String directory;
+    private PopupWindow popUp;
+    private int uploadAttempt = 0;
 
-    public UploadFile(ProgressBar uploadProgress, TextView textView,String directory,String videoTitle,String deviceId){
+    public UploadFile(ProgressBar uploadProgress, TextView textView,String directory,String videoTitle,String deviceId, PopupWindow popUp){
         this.uploadProgress = uploadProgress;
         this.textView = textView;
         this.videoTitle = videoTitle;
         this.deviceId = deviceId;
         this.directory = directory;
+        this.popUp = popUp;
     }
     public ArrayList<String> GetFiles(String directorypath){
         System.out.println("The segment path is "+ directorypath);
@@ -56,17 +60,26 @@ public class UploadFile extends AsyncTask<Void, Integer, Void> {
     }
 
     @Override
+    protected void onPostExecute(Void result){
+        popUp.dismiss();
+    }
+
+    @Override
     protected void onProgressUpdate(Integer... values)
     {
-        if (values[0] < 0)
+        if (values[0] == -1)
         {
-            textView.setText(segmentsUploaded  + " segments uploaded but failed to load the next segment");
+            textView.setText(segmentsUploaded  + " segments uploaded but failed to load the next segment, trying again");
+        }
+        else if(values[0] == -2){
+            textView.setText(segmentsUploaded  + " segments uploaded, rest failed due to network issues");
         }
         else
         {
             uploadProgress.setProgress(values[0]);
-            textView.setText(segmentsUploaded  + " segments uploaded");
+            textView.setText(segmentsUploaded+1  + " segments uploaded");
         }
+
     }
 
     @Override
@@ -189,13 +202,21 @@ public class UploadFile extends AsyncTask<Void, Integer, Void> {
                         fileInputStream.close();
                         dos.flush();
                         dos.close();
+                        uploadAttempt = 0;
                         segmentsUploaded++;
 
                     } catch (Exception e) {
                         Log.i("DASH","Could not upload file " + sourceFile.getName() );
                         i--;
                         publishProgress(-1);
-                        Thread.sleep(3000);
+                        Thread.sleep(5000);
+                        uploadAttempt++;
+                        System.out.println("Upload attempt is " + uploadAttempt);
+                        if(uploadAttempt == 6){
+                            publishProgress(-2);
+                            System.out.println("Max upload attempts reached");
+                            break;
+                        }
                         // dialog.dismiss();
                         e.printStackTrace();
                         continue;
@@ -203,7 +224,7 @@ public class UploadFile extends AsyncTask<Void, Integer, Void> {
                 }
 
                 if ( segmentsUploaded<=totalSegments){
-                    publishProgress((segmentsUploaded * 100) / totalSegments);
+                    publishProgress((segmentsUploaded * 100) / (totalSegments-1));
                 }
             } catch (Exception ex) {
                 // dialog.dismiss();

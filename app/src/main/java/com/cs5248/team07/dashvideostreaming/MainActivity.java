@@ -32,6 +32,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 
+import static java.lang.System.exit;
+
 
 public class MainActivity extends AppCompatActivity{
 
@@ -252,10 +254,9 @@ public class MainActivity extends AppCompatActivity{
         uploadVideoPopupWindow.showAtLocation(mainLayout, Gravity.CENTER,0,0);
         uploadVideoProgressBar = (ProgressBar) customView.findViewById(R.id.uploadProgress);
         uploadVideoProgressText = (TextView) customView.findViewById(R.id.uploadTextView);
-        UploadFile uploadObj = new UploadFile(uploadVideoProgressBar,uploadVideoProgressText,segmentsPath,f.getName(),"Samsung Galaxy Tab");
+        UploadFile uploadObj = new UploadFile(uploadVideoProgressBar,uploadVideoProgressText,segmentsPath,f.getName(),"Samsung Galaxy Tab",uploadVideoPopupWindow);
         try {
             uploadObj.execute();
-            uploadVideoPopupWindow.dismiss();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -322,13 +323,10 @@ public class MainActivity extends AppCompatActivity{
         splitVideoProgressBar = (ProgressBar) customView.findViewById(R.id.segmentProgress);
         splitVideoProgressText = (TextView) customView.findViewById(R.id.segmentTextView);
 
-        CreateVideoSegments obj = new CreateVideoSegments(splitVideoProgressBar,splitVideoProgressText);
+        CreateVideoSegments obj = new CreateVideoSegments(splitVideoProgressBar,splitVideoProgressText,splitVideoPopupWindow);
         try {
-            Integer result = obj.execute(filepath, outputPath, "3.0").get();
-            splitVideoPopupWindow.dismiss();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
+            obj.execute(filepath, outputPath, "3.0");
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

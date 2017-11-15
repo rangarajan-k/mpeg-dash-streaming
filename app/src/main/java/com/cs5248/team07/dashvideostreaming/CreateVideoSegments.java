@@ -2,6 +2,7 @@ package com.cs5248.team07.dashvideostreaming;
 
 import android.os.AsyncTask;
 import android.util.Log;
+import android.widget.PopupWindow;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import com.coremedia.iso.boxes.Container;
@@ -31,11 +32,14 @@ public class CreateVideoSegments extends AsyncTask<String, Double, Integer> {
     private int segmentNumber;
     private  ProgressBar segmentProgress;
     private  TextView textview;
+    private PopupWindow popUp;
 
 
-    public CreateVideoSegments(ProgressBar segmentProgress, TextView textView) {
+    public CreateVideoSegments(ProgressBar segmentProgress, TextView textView, PopupWindow popUp) {
         this.segmentProgress = segmentProgress;
         this.textview = textView;
+        this.popUp = popUp;
+
     }
     @Override
     protected Integer doInBackground(String... params) {
@@ -53,6 +57,10 @@ public class CreateVideoSegments extends AsyncTask<String, Double, Integer> {
     @Override
     protected void onPreExecute() {
         segmentProgress.setMax(100);
+    }
+    @Override
+    protected void onPostExecute(Integer result){
+        popUp.dismiss();
     }
 
     public int split(String path, String destinationPath, double splitDuration) {
