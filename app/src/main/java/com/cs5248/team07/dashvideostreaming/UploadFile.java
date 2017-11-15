@@ -13,6 +13,7 @@ import java.io.FileInputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 
 public class UploadFile extends AsyncTask<Void, Integer, Void> {
@@ -38,7 +39,7 @@ public class UploadFile extends AsyncTask<Void, Integer, Void> {
     }
     public ArrayList<String> GetFiles(String directorypath){
         System.out.println("The segment path is "+ directorypath);
-        ArrayList<String> Myfiles = new ArrayList<String>();
+        ArrayList<String> Myfiles = new ArrayList<>();
         File f = new File(directorypath);
         File[] files = f.listFiles();
         if(files.length==0){
@@ -50,6 +51,7 @@ public class UploadFile extends AsyncTask<Void, Integer, Void> {
                 Myfiles.add(files[i].getAbsolutePath());
             }
         }
+        Collections.sort(Myfiles);
         return Myfiles;
     }
 
