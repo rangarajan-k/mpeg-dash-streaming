@@ -69,7 +69,7 @@ public class UploadFile extends AsyncTask<Void, Integer, Void> {
     {
         if (values[0] == -1)
         {
-            textView.setText(segmentsUploaded  + " segments uploaded but failed to load the next segment, trying again");
+            textView.setText(segmentsUploaded  + " segments uploaded but failed to load the next segment, trying again, Upload Attempt is "+uploadAttempt);
         }
         else if(values[0] == -2){
             textView.setText(segmentsUploaded  + " segments uploaded, rest failed due to network issues");
