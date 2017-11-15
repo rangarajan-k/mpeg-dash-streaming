@@ -33,6 +33,10 @@ public class CreateVideoSegments extends AsyncTask<String, Double, Integer> {
     private  TextView textview;
 
 
+    public CreateVideoSegments(ProgressBar segmentProgress, TextView textView) {
+        this.segmentProgress = segmentProgress;
+        this.textview = textView;
+    }
     @Override
     protected Integer doInBackground(String... params) {
 
@@ -45,6 +49,10 @@ public class CreateVideoSegments extends AsyncTask<String, Double, Integer> {
         String destPath = params[1];
         double splitDuration = Double.parseDouble(params[2]);
         return Integer.valueOf(this.split(path, destPath, splitDuration));
+    }
+    @Override
+    protected void onPreExecute() {
+        segmentProgress.setMax(100);
     }
 
     public int split(String path, String destinationPath, double splitDuration) {
@@ -118,8 +126,8 @@ public class CreateVideoSegments extends AsyncTask<String, Double, Integer> {
             }
         }
 
-        //percentage = (startTime * 100) / videoTime;
-        //publishProgress(percentage);
+        percentage = (startTime * 100) / videoTime;
+        publishProgress(percentage);
 
         if (startTime == endTime)
             return false;
@@ -161,6 +169,12 @@ public class CreateVideoSegments extends AsyncTask<String, Double, Integer> {
         return true;
     }
 
+    @Override
+    protected void onProgressUpdate(Double... values) {
+        segmentProgress.setProgress(values[0].intValue());
+        //Updates the number of segments done below Progress Bar on UI
+        textview.setText(segmentNumber - 1 + " segments created");
+    }
 
     private double correctSyncSamples(Track track, double endLimit, boolean next) {
         double[] timeOfSyncSamples = new double[track.getSyncSamples().length];

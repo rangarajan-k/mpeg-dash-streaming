@@ -18,12 +18,15 @@ import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.PopupWindow;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.content.Intent;
 import android.widget.ListView;
 import android.app.Activity;
 import android.widget.Toast;
+
+import org.w3c.dom.Text;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -38,6 +41,12 @@ public class MainActivity extends AppCompatActivity{
     private TextView videoPopupDelete;
     private String outputPath;
     private PopupWindow videoPopupWindow;
+    private PopupWindow splitVideoPopupWindow;
+    private ProgressBar splitVideoProgressBar;
+    private TextView splitVideoProgressText;
+    private PopupWindow uploadVideoPopupWindow;
+    private ProgressBar uploadVideoProgressBar;
+    private TextView uploadVideoProgressText;
     private FrameLayout mainLayout;
     private Context mContext;
     private Activity mActivity;
@@ -151,13 +160,14 @@ public class MainActivity extends AppCompatActivity{
         videoPopupUpload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                videoPopupWindow.dismiss();
                 String videoTitle = videoPopUpTitle.getText().toString();
                 Toast.makeText(MainActivity.this,"Splitting and uploading the video : " + videoTitle,Toast.LENGTH_LONG).show();
                 //Call the function that splits into segments and uploads
                 String dir = getAppStoragePath(MainActivity.this);
                 segmentVideo(dir,videoTitle);
-                //uploadSingleFile(dir,videoTitle);
-                videoPopupWindow.dismiss();
+                uploadSingleVideo(dir,videoTitle);
+
             }
         });
 
@@ -165,13 +175,12 @@ public class MainActivity extends AppCompatActivity{
         videoPopupDelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                videoPopupWindow.dismiss();
                 String videoTitle = videoPopUpTitle.getText().toString();
                 Toast.makeText(MainActivity.this,"Deleting the video : " + videoTitle,Toast.LENGTH_LONG).show();
                 //Call the function that splits into segments and uploads
                 String dir = getAppStoragePath(MainActivity.this);
                 deleteVideo(dir,videoTitle);
-                //uploadSingleFile(dir,videoTitle);
-                videoPopupWindow.dismiss();
             }
         });
 
@@ -179,13 +188,12 @@ public class MainActivity extends AppCompatActivity{
         videoPopupPlay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                videoPopupWindow.dismiss();
                 String videoTitle = videoPopUpTitle.getText().toString();
                 Toast.makeText(MainActivity.this,"Playing the video : " + videoTitle,Toast.LENGTH_LONG).show();
                 //Call the function that splits into segments and uploads
                 String dir = getAppStoragePath(MainActivity.this);
                 playVideo(dir,videoTitle);
-                //uploadSingleFile(dir,videoTitle);
-                videoPopupWindow.dismiss();
             }
         });
 
@@ -222,17 +230,33 @@ public class MainActivity extends AppCompatActivity{
     }
 
 
-    private void uploadSingleFile(String directorypath,String fileName){
+    private void uploadSingleVideo(String directorypath,String fileName){
         //ArrayList<String> filesinfolder = GetFiles(directorypath);
         String mainFile = directorypath+"/"+fileName;
         String segmentsPath = directorypath+"/streamlets/"+fileName+"/";
         File f = new File(mainFile);
-        UploadFile obj = new UploadFile();
+        mContext = getApplicationContext();
+        mActivity = MainActivity.this;
+        mainLayout = (FrameLayout) findViewById(R.id.content);
+
+        LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(LAYOUT_INFLATER_SERVICE);
+        View customView = inflater.inflate(R.layout.uploadvideo_progress_popup,null);
+        // Initialize a new instance of popup window
+        uploadVideoPopupWindow = new PopupWindow(
+                customView,
+                RelativeLayout.LayoutParams.WRAP_CONTENT,
+                RelativeLayout.LayoutParams.WRAP_CONTENT
+        );
+
+        uploadVideoPopupWindow.setElevation(5.0f);
+        uploadVideoPopupWindow.showAtLocation(mainLayout, Gravity.CENTER,0,0);
+        uploadVideoProgressBar = (ProgressBar) customView.findViewById(R.id.uploadProgress);
+        uploadVideoProgressText = (TextView) customView.findViewById(R.id.uploadTextView);
+        UploadFile uploadObj = new UploadFile(uploadVideoProgressBar,uploadVideoProgressText,segmentsPath,f.getName(),"Samsung Galaxy Tab");
         try {
-            String result = obj.execute(segmentsPath,f.getName(),"SamsungGalaxyTab").get();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
+            uploadObj.execute();
+            uploadVideoPopupWindow.dismiss();
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -279,9 +303,29 @@ public class MainActivity extends AppCompatActivity{
         outputPath = getSegmentFolder(f.getName());
         Log.i("DASH", "Path where segments have to be saved is " + outputPath);
 
-        CreateVideoSegments obj = new CreateVideoSegments();
+        //open a popup for the progress bar and then pass it to the segment function
+        mContext = getApplicationContext();
+        mActivity = MainActivity.this;
+        mainLayout = (FrameLayout) findViewById(R.id.content);
+
+        LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(LAYOUT_INFLATER_SERVICE);
+        View customView = inflater.inflate(R.layout.splitvideo_progress_popup,null);
+        // Initialize a new instance of popup window
+        splitVideoPopupWindow = new PopupWindow(
+                customView,
+                RelativeLayout.LayoutParams.WRAP_CONTENT,
+                RelativeLayout.LayoutParams.WRAP_CONTENT
+        );
+
+        splitVideoPopupWindow.setElevation(5.0f);
+        splitVideoPopupWindow.showAtLocation(mainLayout, Gravity.CENTER,0,0);
+        splitVideoProgressBar = (ProgressBar) customView.findViewById(R.id.segmentProgress);
+        splitVideoProgressText = (TextView) customView.findViewById(R.id.segmentTextView);
+
+        CreateVideoSegments obj = new CreateVideoSegments(splitVideoProgressBar,splitVideoProgressText);
         try {
             Integer result = obj.execute(filepath, outputPath, "3.0").get();
+            splitVideoPopupWindow.dismiss();
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (ExecutionException e) {

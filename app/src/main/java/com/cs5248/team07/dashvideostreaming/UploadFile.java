@@ -2,6 +2,8 @@ package com.cs5248.team07.dashvideostreaming;
 
 import android.os.AsyncTask;
 import android.util.Log;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.DataOutputStream;
@@ -12,9 +14,24 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class UploadFile extends AsyncTask<String, Void, String> {
+public class UploadFile extends AsyncTask<Void, Integer, Void> {
 
+    private ProgressBar uploadProgress;
+    private TextView textView;
+    private int segmentsUploaded = 0;
+    private int totalSegments = 0;
+    private double percentage;
+    private String videoTitle;
+    private String deviceId;
+    private String directory;
 
+    public UploadFile(ProgressBar uploadProgress, TextView textView,String directory,String videoTitle,String deviceId){
+        this.uploadProgress = uploadProgress;
+        this.textView = textView;
+        this.videoTitle = videoTitle;
+        this.deviceId = deviceId;
+        this.directory = directory;
+    }
     public ArrayList<String> GetFiles(String directorypath){
         System.out.println("The segment path is "+ directorypath);
         ArrayList<String> Myfiles = new ArrayList<String>();
@@ -33,13 +50,33 @@ public class UploadFile extends AsyncTask<String, Void, String> {
     }
 
     @Override
-    protected String doInBackground(String... params) {
+    protected void onPreExecute() {
+        uploadProgress.setMax(100);
+        textView.setText("Started to upload segments ...");
+    }
 
-        ArrayList<String> segmentList = GetFiles(params[0]);
+    @Override
+    protected void onProgressUpdate(Integer... values)
+    {
+        if (values[0] < 0)
+        {
+            textView.setText(segmentsUploaded  + " segments uploaded but failed to load the next segment");
+        }
+        else
+        {
+            uploadProgress.setProgress(values[0]);
+            textView.setText(segmentsUploaded  + " segments uploaded");
+        }
+    }
+
+    @Override
+    protected Void doInBackground(Void... params) {
+
+        ArrayList<String> segmentList = GetFiles(directory);
         Iterator iter = segmentList.iterator();
         String totalStreamlets = Integer.toString(segmentList.size());
-        Integer streamletsUploaded = 0;
-        for (int i = streamletsUploaded; i < segmentList.size(); i++) {
+        totalSegments = segmentList.size();
+        for (int i = segmentsUploaded; i < segmentList.size(); i++) {
 
             try {
                 String sourceFileUri = segmentList.get(i).toString();
@@ -53,12 +90,8 @@ public class UploadFile extends AsyncTask<String, Void, String> {
                 byte[] buffer;
                 int maxBufferSize = 1 * 1024 * 1024;
                 File sourceFile = new File(sourceFileUri);
-                String videoTitle = params[1];
-                String deviceId = params[2];
                 System.out.println("Device id is " + deviceId);
                 String streamletNo = Integer.toString(i);
-                i++;
-
 
                 if (sourceFile.isFile()) {
 
@@ -156,25 +189,28 @@ public class UploadFile extends AsyncTask<String, Void, String> {
                         fileInputStream.close();
                         dos.flush();
                         dos.close();
-                        streamletsUploaded++;
+                        segmentsUploaded++;
 
                     } catch (Exception e) {
                         Log.i("DASH","Could not upload file " + sourceFile.getName() );
+                        i--;
+                        publishProgress(-1);
                         Thread.sleep(3000);
                         // dialog.dismiss();
                         e.printStackTrace();
                         continue;
                     }
-
                 }
 
-
+                if ( segmentsUploaded<=totalSegments){
+                    publishProgress((segmentsUploaded * 100) / totalSegments);
+                }
             } catch (Exception ex) {
                 // dialog.dismiss();
 
                 ex.printStackTrace();
             }
         }
-        return "Executed";
+        return null;
     }
 }
