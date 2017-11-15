@@ -325,7 +325,7 @@ public class MainActivity extends AppCompatActivity{
 
         CreateVideoSegments obj = new CreateVideoSegments(splitVideoProgressBar,splitVideoProgressText,splitVideoPopupWindow);
         try {
-            obj.execute(filepath, outputPath, "5.0");
+            obj.execute(filepath, outputPath, "3.0");
         } catch (Exception e) {
             e.printStackTrace();
         }
